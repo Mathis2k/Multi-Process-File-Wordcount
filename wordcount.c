@@ -1,35 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#define BUFFER_SIZE 1024;
-#define NULL_FILE_POINTER_ERROR "ERROR: file pointer returned NULL."
-
+#define FORK_ERROR "ERROR: fork failed to execute."
+#define FILE_ERROR "ERROR: file does not exist."
 
 int processFile(char* filename);
+int countNumberOfWords(char* string);
 char* tokenizeString(char* string);
 
 int main(int argc, const char * argv[]) {
   
-    /* TODO:
-     *      // control process (in notes)
-     *      // add null file check
-     *
-     */
-    
-    
-    
-    
-    
-    processFile(argv[1]);
-    
+    int i, returnedProcessFile;
+    for(i=1; i<argc; i++){
+        int cpid = fork();
+
+        if(cpid == 0){
+            //child process
+            returnedProcessFile = processFile(argv[i]);
+
+            if(returnedProcessFile == 0){ 
+                printf("Child process %d for %s: number of words is %d.\n", cpid, argv[i], wordCount);
+                return 0;
+            }
+            else{
+                printf("Child process %d for %s: %s.\n", cpid, argv[i], FILE_ERROR);
+                exit(1);
+            }
+        }
+        else if(cpid == -1){
+            fprintf(stderr, "%s\n", FORK_ERROR);
+        }           
+   }    
+   
+
+    //TODO: wait on all child processes that spawned.
+
+ 
     return 0;
 }
 
 int processFile(char *filename){
     
-    int buffSize = BUFFER_SIZE;
-
     char *line = NULL;
     int length;
     int read;
@@ -39,9 +52,7 @@ int processFile(char *filename){
     FILE *fp = fopen(filename, "r");
     
     if(fp == NULL){
-        
-        fprintf(stderr, "%s\n", NULL_FILE_POINTER_ERROR);
-
+	    return -1;
     }
     
     while((read = getline(&line, &length, fp) != EOF)){
@@ -89,13 +100,13 @@ char* tokenizeString(char* string){
     return newString;
 }
 
-int countNumberOfWords(char* line){
+int countNumberOfWords(char* string){
     
     int i, wordCount = 0;
     
-    for(i=0; i<strlen(line); i++){
+    for(i=0; i<strlen(string); i++){
 
-        if(isspace(line[i])){
+        if(isspace(string[i])){
             wordCount++;
 
         }
