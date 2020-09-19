@@ -6,9 +6,9 @@
 #include <errno.h>
 
 #define FORK_ERROR "ERROR: fork failed to execute."
-#define FILE_ERROR "ERROR: file does not exist."
+#define FILE_ERROR "ERROR: file does not exist... exiting program."
 #define WAIT_ERROR "ERROR: failed to wait for child."
-
+#define UNKOWN_ERROR "ERROR: something went wrong... exiting program."
 int totalProcesses = 0;
 int totalUselessFiles = 0;
 int totalSuccessfulFiles = 0;
@@ -73,6 +73,8 @@ int main(int argc, const char * argv[]) {
             printf("Child %ld terminated normally.\n", (long)retVal);
             totalSuccessfulFiles++;
         }
+        else
+            fprintf(stderr, "%s", UNKOWN_ERROR);
        
         totalProcesses++; 
     }
